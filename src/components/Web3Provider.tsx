@@ -2,40 +2,29 @@
 
 import React from "react";
 import { WagmiProvider, createConfig, http } from "wagmi";
-import { polygon, polygonAmoy } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import { LensConfig, LensProvider, development, production } from "@lens-protocol/react-web";
 import { bindings } from "@lens-protocol/wagmi";
 
+import { lens } from "./../utils/customChains";
+
 // connect kit doesn't export the config type, so we create it here
 type ConnectKitConfig = Parameters<typeof getDefaultConfig>[0];
 
-// differences in config between the environments
 const appConfigs = {
   development: {
     connectkit: {
-      chains: [polygonAmoy],
+      chains: [lens],
       transports: {
-        [polygonAmoy.id]: http(),
+        [lens.id]: http(lens.rpcUrls.default.http[0]),
       },
     } as Partial<ConnectKitConfig>,
     lens: {
       environment: development,
       debug: true,
     } as Partial<LensConfig>,
-  },
-  production: {
-    connectkit: {
-      chains: [polygon],
-      transports: {
-        [polygon.id]: http(),
-      },
-    } as Partial<ConnectKitConfig>,
-    lens: {
-      environment: production,
-    } as Partial<LensConfig>,
-  },
+  }
 };
 
 // select the config based on the environment
